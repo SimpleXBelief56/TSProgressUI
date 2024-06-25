@@ -1,5 +1,4 @@
 const { app, BrowserWindow, Notification, Menu, ipcMain } = require("electron");
-const PowerShell = require("node-powershell");
 const { fork } = require("child_process");
 const path = require("path");
 const NTSEnvironment = require("./js/sms");
@@ -24,26 +23,24 @@ function createWindow(){
 var current = "";
 var cpuClock = 1000;
 async function UpdateProgress(){
-    await PowerShell.PowerShell.$`$osenv = New-Object -COMObject Microsoft.SMS.TSEnvironment;$osenv.Value("OSDComputerName");$osenv.Value("_SMSTSCurrentActionName");$osenv.Value("_SMSTSNextInstructionPointer");$osenv.Value("_SMSTSInstructionTableSize");$osenv.Value("MULTICASTPROGRESS");$osenv.Value("DeployRoot")`.then((output) => {
-        var terminalOutput = output.raw.trim().split("\n");
-        if(terminalOutput[1] == "Install Operating System\r" && terminalOutput.length == 6){
-            if(terminalOutput[4].toString() != "99%\r"){
-                window.webContents.send("MulticastProgress", terminalOutput[4]);
-            } else {
-                window.webContents.send("UpdateProgress", terminalOutput);
-            }
+    ntsEnvironment.getDeploymentStatus().then(deploymentStatus => {
+
+        // Check if Multicast is in progress        
+        if(deploymentStatus.isMulticast && deploymentStatus.multicastProgress != "95%"){
+            window.webContents.send("MulticastProgress", deploymentStatus.multicastProgress);
+        } else {
+            window.webContents.send("UpdateProgress",  [deploymentStatus.OSDComputerName, deploymentStatus.currentAction, deploymentStatus.currentIndex, deploymentStatus.maxIndex])
         }
-        if(current != terminalOutput[2]){
-            if(terminalOutput[1] == "Install Operating System\r" && terminalOutput.length == 5){
-                cpuClock = 200;
-            }
-            current = terminalOutput[2];
-            window.webContents.send("UpdateProgress", terminalOutput);
-            if(terminalOutput[2] == terminalOutput[3]){
+
+        // Check if the current action has switched and the deployment is done
+        if(current != deploymentStatus.currentAction){
+            current = deploymentStatus.currentAction;
+            if(deploymentStatus.currentIndex == deploymentStatus.maxIndex){
                 app.quit();
             }
         }
     });
+
     setTimeout(UpdateProgress, cpuClock);
 }
 
