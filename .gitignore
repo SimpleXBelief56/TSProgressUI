@@ -2,3 +2,4 @@ node_modules/*
 js/tsprogress.js
 js/worker.js
 TSProgressUI-Redefined-win32-x64/*
+experiment/*
