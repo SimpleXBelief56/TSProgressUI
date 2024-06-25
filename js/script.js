@@ -103,13 +103,13 @@ ipcRenderer.on("UpdateProgress", (event, data) => {
 
    var currentActionName = data[1];
 
-   if(currentActionName.toLowerCase() == "WINPEPrinterUI Utility Tool\n".toLowerCase()){
+   if(currentActionName.toLowerCase() == "WINPEPrinterUI Utility Tool".toLowerCase()){
       changeDeploymentLogo(logoClasses["Printer"]);
    } else if(currentActionName.toLowerCase().includes("drivers")){
       changeDeploymentLogo(logoClasses["Drivers"]);
-   } else if(currentActionName.toLowerCase() == "Lenovo Boot Utility\n".toLowerCase()){
+   } else if(currentActionName.toLowerCase() == "Lenovo Boot Utility".toLowerCase()){
       changeDeploymentLogo(logoClasses["BIOS_Update"]);
-   } else if(currentActionName.toLowerCase() == "Install Operating System\r".toLowerCase()){
+   } else if(currentActionName.toLowerCase() == "Install Operating System".toLowerCase()){
       changeDeploymentLogo(logoClasses["OS_Install"]);
    } else if(currentActionName.toLowerCase().includes("multicast")){
       changeDeploymentLogo(logoClasses["Imaging_OS"]);
