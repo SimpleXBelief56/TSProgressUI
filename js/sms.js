@@ -43,14 +43,21 @@ class NTSEnvironment{
     }
 
     getDeploymentStatus(){
-        const deploymentStatus = {"currentAction": "", "currentIndex": 0, "maxIndex": 0, "isMulticast": false, "multicastProgress": 0, "deployRoot": ""};
-        deploymentStatus.currentAction = this.tsEnvironment.Value("_SMSTSCurrentActionName");
-        deploymentStatus.currentIndex = this.tsEnvironment.Value("_SMSTSNextInstructionPointer");
-        deploymentStatus.maxIndex = this.tsEnvironment.Value("_SMSTSInstructionTableSize");
-        deploymentStatus.multicastProgress = this.tsEnvironment.Value("MULTICASTPROGRESS");
-        deploymentStatus.deployRoot = this.tsEnvironment.Value("DeployRoot");
-
-        return deploymentStatus;
+        return new Promise((resolve, reject) => {
+            const deploymentStatus = {"currentAction": "", "currentIndex": 0, "maxIndex": 0, "isMulticast": false, "multicastProgress": 0, "deployRoot": "", "OSDComputerName": ""};
+            deploymentStatus.currentAction = this.tsEnvironment.Value("_SMSTSCurrentActionName");
+            deploymentStatus.currentIndex = this.tsEnvironment.Value("_SMSTSNextInstructionPointer");
+            deploymentStatus.maxIndex = this.tsEnvironment.Value("_SMSTSInstructionTableSize");
+            deploymentStatus.multicastProgress = this.tsEnvironment.Value("MULTICASTPROGRESS");
+            deploymentStatus.deployRoot = this.tsEnvironment.Value("DeployRoot");
+            deploymentStatus.OSDComputerName = this.tsEnvironment.Value("OSDComputerName");
+    
+            if (deploymentStatus.multicastProgress != "" && deploymentStatus.currentAction == "Install Operating System"){
+                deploymentStatus.isMulticast = true;
+            }
+    
+            resolve(deploymentStatus);
+        })
     }
 
     __getVariables(){
